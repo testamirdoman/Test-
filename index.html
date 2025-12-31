@@ -13,22 +13,68 @@
       height: 100%;
       background: black;
       overflow: hidden;
-      cursor: pointer;
+      font-family: sans-serif;
     }
 
+    /* لودر */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: black;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 10;
+    }
+
+    #loader span {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .progress-box {
+      width: 70%;
+      max-width: 300px;
+      height: 8px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: white;
+      transition: width 0.3s ease;
+    }
+
+    /* اسلایدر */
     img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       display: block;
-      transition: opacity 0.3s ease-in-out;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
     }
   </style>
 </head>
 
 <body>
 
-<img id="slider" src="images/A1.webp" alt="AsusMall">
+<!-- Loader -->
+<div id="loader">
+  <span>لطفاً منتظر بمانید...</span>
+  <div class="progress-box">
+    <div class="progress-bar" id="progress"></div>
+  </div>
+</div>
+
+<!-- Image -->
+<img id="slider" src="" alt="AsusMall">
 
 <script>
   const images = [
@@ -39,12 +85,37 @@
     "images/A5.webp"
   ];
 
+  const slider = document.getElementById("slider");
+  const loader = document.getElementById("loader");
+  const progressBar = document.getElementById("progress");
+
+  let loaded = 0;
   let index = 0;
   let isChanging = false;
-  const slider = document.getElementById("slider");
+
+  // Preload با درصد واقعی
+  images.forEach(src => {
+    const img = new Image();
+    img.onload = () => {
+      loaded++;
+      const percent = Math.round((loaded / images.length) * 100);
+      progressBar.style.width = percent + "%";
+
+      // وقتی همه لود شد
+      if (loaded === images.length) {
+        setTimeout(() => {
+          loader.style.display = "none";
+          slider.src = images[0];
+          slider.style.opacity = 1;
+          startSlider();
+        }, 500);
+      }
+    };
+    img.src = src;
+  });
 
   function nextImage() {
-    if (isChanging) return; // جلوگیری از پرش
+    if (isChanging) return;
     isChanging = true;
 
     slider.style.opacity = 0;
@@ -54,23 +125,18 @@
       slider.src = images[index];
       slider.style.opacity = 1;
 
-      setTimeout(() => {
-        isChanging = false;
-      }, 300);
-    }, 150);
+      setTimeout(() => isChanging = false, 500);
+    }, 300);
   }
 
-  // ⏱ تایمر
-  setInterval(nextImage, 2000);
-
-  // 🖱 کلیک دسکتاپ
-  slider.addEventListener("click", nextImage);
-
-  // 📱 لمس موبایل (بدون دابل)
-  slider.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    nextImage();
-  }, { passive: false });
+  function startSlider() {
+    setInterval(nextImage, 2000);
+    slider.addEventListener("click", nextImage);
+    slider.addEventListener("touchstart", e => {
+      e.preventDefault();
+      nextImage();
+    }, { passive: false });
+  }
 </script>
 
 </body>
