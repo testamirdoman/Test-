@@ -133,16 +133,17 @@ html, body {
 <!-- 🎮 Snake Game -->
 <div id="snakeGame">
   <button id="exitSnake">خروج</button>
-  <canvas id="snakeCanvas" width="300" height="300"></canvas>
+ <canvas id="snakeCanvas" width="300" height="300"></canvas>
 
   <div id="snakeControls">
-    <div></div>
-    <button class="snake-btn" data-dir="up">▲</button>
-    <div></div>
-    <button class="snake-btn" data-dir="left">◀</button>
-    <button class="snake-btn" data-dir="down">▼</button>
-    <button class="snake-btn" data-dir="right">▶</button>
-  </div>
+  <div></div>
+  <button type="button" class="snake-btn" data-dir="up">▲</button>
+  <div></div>
+
+  <button type="button" class="snake-btn" data-dir="left">◀</button>
+  <button type="button" class="snake-btn" data-dir="down">▼</button>
+  <button type="button" class="snake-btn" data-dir="right">▶</button>
+</div>
 </div>
 
 <script>
@@ -327,13 +328,21 @@ function randomFood(){
   /* غذا */
   ctx.fillRect(food.x, food.y, 10, 10);
 }
-
-/* Touch Controls */
+/* Touch + Click Controls */
 document.querySelectorAll(".snake-btn").forEach(btn=>{
+
+  // لمس موبایل
   btn.addEventListener("touchstart",e=>{
     e.preventDefault();
     changeDir(btn.dataset.dir);
+  }, { passive:false });
+
+  // کلیک (برای جلوگیری از ریست)
+  btn.addEventListener("click",e=>{
+    e.preventDefault();
+    changeDir(btn.dataset.dir);
   });
+
 });
 function changeDir(d){
   if(d==="up"&&dir.y===0)dir={x:0,y:-10};
