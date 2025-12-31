@@ -1,234 +1,199 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8" />
-  <title>AsusMall | فروشگاه رسمی محصولات Asus</title>
-  <meta name="description" content="AsusMall فروشگاه محصولات ایسوس — لپ‌تاپ، قطعات و لوازم جانبی Asus. مشاهده سریع محصولات و اطلاعات." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://asusmall.com/" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Schema (اختیاری اما مفید برای سرچ) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "AsusMall",
-    "url": "https://asusmall.com",
-    "description": "AsusMall فروشگاه محصولات ایسوس — لپ‌تاپ، قطعات و لوازم جانبی Asus."
-  }
-  </script>
+  <meta charset="UTF-8">
+  <title>AsusMall</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    /* ===== صفحه و عکس ها ===== */
-    html,body { height:100%; width:100%; margin:0; padding:0; background:#000; overflow:hidden; font-family: Tahoma, Arial, sans-serif; }
-    #slider { width:100%; height:100%; object-fit:contain; display:block; opacity:0; transition:opacity 0.45s ease-in-out; cursor:pointer; }
-
-    /* ===== لودر و پروگرس ===== */
-    #loader {
-      position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;
-      gap:18px; background:#000; color:#fff; z-index:9999;
-    }
-    #loader .msg { font-size:15px; opacity:0.95; }
-    .progress-box { width:70%; max-width:360px; height:10px; background:#222; border-radius:999px; overflow:hidden; box-shadow:inset 0 0 6px rgba(0,0,0,0.6); }
-    .progress-bar { height:100%; width:0%; background:#fff; transition:width 0.25s linear; }
-
-    /* ===== ripple ===== */
-    .ripple {
-      position:absolute;
-      border: 2px solid rgba(255,255,255,0.7);
-      border-radius:50%;
-      transform:translate(-50%,-50%);
-      animation:rippleAnim 0.9s ease-out forwards;
-      pointer-events:none;
-      z-index:9998;
-    }
-    @keyframes rippleAnim {
-      from { width:0;height:0;opacity:1; }
-      to   { width:360px;height:360px;opacity:0; }
-    }
-
-    /* ===== متن مخفی (برای سئو ولی نمایش داده نشود) ===== */
-    .sr-only {
-      position: absolute !important;
-      height: 1px; width: 1px;
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
       overflow: hidden;
-      clip: rect(1px, 1px, 1px, 1px);
-      white-space: nowrap; /* prevent line breaks */
+      font-family: sans-serif;
     }
 
-    /* Responsive tweak */
-    @media (max-width:480px){
-      @keyframes rippleAnim { to { width:250px; height:250px; opacity:0; } }
+    /* Loader */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: black;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 10;
+    }
+
+    .progress-box {
+      width: 70%;
+      max-width: 300px;
+      height: 8px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: white;
+      transition: width 0.3s ease;
+    }
+
+    /* Image */
+    #slider {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    /* Ripple */
+    .ripple {
+      position: absolute;
+      border: 5px solid rgba(255,255,255,0.6);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: ripple 0.8s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      from {
+        width: 0;
+        height: 0;
+        opacity: 1;
+      }
+      to {
+        width: 250px;
+        height: 250px;
+        opacity: 0;
+      }
     }
   </style>
 </head>
+
 <body>
 
-  <!-- متون سئو (مخفی اما قابل ایندکس) -->
-  <h1 class="sr-only">AsusMall</h1>
-  <p class="sr-only">AsusMall فروشگاه محصولات ایسوس. لپ‌تاپ، قطعات و لوازم جانبی Asus. برند رسمی برای محصولات ایسوس.</p>
-
-  <!-- Loader -->
-  <div id="loader">
-    <div class="msg">لطفاً منتظر بمانید...</div>
-    <div class="progress-box"><div id="progress" class="progress-bar"></div></div>
+<div id="loader">
+  <span>لطفاً منتظر بمانید...</span>
+  <div class="progress-box">
+    <div class="progress-bar" id="progress"></div>
   </div>
+</div>
 
-  <!-- تصویر اسلایدر -->
-  <img id="slider" src="" alt="AsusMall">
+<img id="slider" src="" alt="AsusMall">
 
-  <script>
-    /* ===== تنظیمات اولیه ===== */
-    const images = [
-      "images/A1.webp",
-      "images/A2.webp",
-      "images/A3.webp",
-      "images/A4.webp",
-      "images/A5.webp"
-    ];
-    const AUTO_INTERVAL = 2000; // میلی‌ثانیه: 2000 = 2s   → اینجا سرعت اتوماتیک را تغییر بده
-    const RIPPLE_BASE_SIZE = 360; // اندازه نهایی موج (px). در media rule هم تنظیم شد.
+<script>
+  const images = [
+    "images/A1.webp",
+    "images/A2.webp",
+    "images/A3.webp",
+    "images/A4.webp",
+    "images/A5.webp"
+  ];
 
-    /* ===== المان‌ها ===== */
-    const slider = document.getElementById('slider');
-    const loader = document.getElementById('loader');
-    const progressBar = document.getElementById('progress');
+  const slider = document.getElementById("slider");
+  const loader = document.getElementById("loader");
+  const progressBar = document.getElementById("progress");
 
-    /* ===== وضعیت‌ها ===== */
-    let index = 0;
-    let loaded = 0;
-    let isChanging = false;
-    let isHolding = false;
-    let interval = null;
+  let loaded = 0;
+  let index = 0;
+  let isChanging = false;
+  let isHolding = false;
+  let interval;
 
-    /* ===== preload واقعی با محاسبه درصد ===== */
-    images.forEach(src => {
-      const img = new Image();
-      img.onload = () => {
-        loaded++;
-        const pct = Math.round((loaded / images.length) * 100);
-        progressBar.style.width = pct + "%";
+  // Preload
+  images.forEach(src => {
+    const img = new Image();
+    img.onload = () => {
+      loaded++;
+      progressBar.style.width = (loaded / images.length) * 100 + "%";
 
-        if (loaded === images.length) {
-          // همهٔ عکس‌ها آماده‌اند
-          setTimeout(() => {
-            loader.style.display = "none";
-            slider.src = images[0];
-            slider.style.opacity = 1;
-            startSlider();
-          }, 300);
-        }
-      };
-      img.onerror = () => {
-        // اگر عکسی نیومد، باز هم جلو بریم ولی درصد را لحاظ می‌کنیم
-        loaded++;
-        const pct = Math.round((loaded / images.length) * 100);
-        progressBar.style.width = pct + "%";
-        if (loaded === images.length) {
-          setTimeout(() => { loader.style.display = "none"; slider.src = images[0]; slider.style.opacity = 1; startSlider(); }, 300);
-        }
-      };
-      img.src = src;
-    });
-
-    /* ===== عملکرد تعویض عکس با محافظ (برای جلوگیری از پرش) ===== */
-    function nextImage() {
-      if (isChanging || isHolding) return;
-      isChanging = true;
-      slider.style.opacity = 0;
-      setTimeout(() => {
-        index = (index + 1) % images.length;
-        slider.src = images[index];
-        slider.style.opacity = 1;
-        setTimeout(() => isChanging = false, 500);
-      }, 250);
-    }
-
-    function startSlider(){
-      if (interval) clearInterval(interval);
-      interval = setInterval(nextImage, AUTO_INTERVAL);
-    }
-    function stopSlider(){
-      if (interval) clearInterval(interval);
-      interval = null;
-    }
-
-    /* ===== ripple: سه موج پشت سر هم از نقطه نگه‌داشتن ===== */
-    function createRipple(x, y) {
-      for (let i = 0; i < 3; i++) {
+      if (loaded === images.length) {
         setTimeout(() => {
-          const r = document.createElement('div');
-          r.className = 'ripple';
-          r.style.left = x + 'px';
-          r.style.top = y + 'px';
-          // می‌تونیم اندازه نهایی رو اینجا هم تغییر بدیم:
-          r.style.animation = `rippleAnim 0.9s ease-out forwards`;
-          document.body.appendChild(r);
-          r.addEventListener('animationend', () => r.remove());
-        }, i * 140);
+          loader.style.display = "none";
+          slider.src = images[0];
+          slider.style.opacity = 1;
+          startSlider();
+        }, 400);
       }
+    };
+    img.src = src;
+  });
+
+  function nextImage() {
+    if (isChanging || isHolding) return;
+    isChanging = true;
+
+    slider.style.opacity = 0;
+    setTimeout(() => {
+      index = (index + 1) % images.length;
+      slider.src = images[index];
+      slider.style.opacity = 1;
+      setTimeout(() => isChanging = false, 500);
+    }, 300);
+  }
+
+  function startSlider() {
+    interval = setInterval(nextImage, 2000);
+  }
+
+  function stopSlider() {
+    clearInterval(interval);
+  }
+
+  // Ripple effect
+  function createRipple(x, y) {
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        const ripple = document.createElement("div");
+        ripple.className = "ripple";
+        ripple.style.left = x + "px";
+        ripple.style.top = y + "px";
+        document.body.appendChild(ripple);
+
+        ripple.addEventListener("animationend", () => {
+          ripple.remove();
+        });
+      }, i * 150);
     }
+  }
 
-    /* ===== نگه‌داشتن (Hold) برای فریز کردن اسلایدر ===== */
-    function holdStart(e){
-      isHolding = true;
-      stopSlider();
-      const x = e.touches ? e.touches[0].clientX : e.clientX;
-      const y = e.touches ? e.touches[0].clientY : e.clientY;
-      createRipple(x, y);
-    }
-    function holdEnd(){
-      isHolding = false;
-      // چند میلی‌ثانیه تاپلان: می‌تونیم فوراً استارت کنیم
-      setTimeout(() => { if (!interval) startSlider(); }, 200);
-    }
+  // Hold start
+  function holdStart(e) {
+    isHolding = true;
+    stopSlider();
 
-    /* ===== دکمه ها / رویدادها ===== */
-    // کلیک یا تاچ کوتاه → عکس بعدی
-    slider.addEventListener('click', (e) => {
-      // اگر نگه‌داشتی نبوده باشه، برو به عکس بعدی
-      if (!isHolding) nextImage();
-    });
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
 
-    // نگه‌داشتن موس
-    slider.addEventListener('mousedown', (e) => {
-      holdStart(e);
-    });
-    document.addEventListener('mouseup', () => {
-      holdEnd();
-    });
+    createRipple(x, y);
+  }
 
-    // موبایل: touchstart = شروع نگه داشتن (ما e.preventDefault را نادیده گرفتم تا تاچ کوتاه هم کار کند)
-    slider.addEventListener('touchstart', (e) => {
-      // اگر کاربر سریع تپ کنه، click هم بعدا ممکنه بیاد؛ ما نگه‌داشتن رو از طول لمس تشخیص می‌دیم:
-      // برای تشخیص نگه‌داشتن واقعی، مدت زمان > 150ms را نگه می‌داریم
-      let held = false;
-      const holdTimer = setTimeout(() => {
-        held = true;
-        holdStart(e);
-      }, 120); // اگر بیش از 120ms نگه داشت، به عنوان hold در نظر می‌گیریم
+  // Hold end
+  function holdEnd() {
+    isHolding = false;
+    startSlider();
+  }
 
-      // وقتی لمس تمام شد:
-      const upHandler = () => {
-        clearTimeout(holdTimer);
-        if (held) {
-          // اگر نگه داشته بود، only release
-          holdEnd();
-        } else {
-          // لمس کوتاه => تپ => عکس بعدی
-          nextImage();
-        }
-        slider.removeEventListener('touchend', upHandler);
-        slider.removeEventListener('touchcancel', upHandler);
-      };
-      slider.addEventListener('touchend', upHandler);
-      slider.addEventListener('touchcancel', upHandler);
-    }, { passive: true });
+  slider.addEventListener("mousedown", holdStart);
+  slider.addEventListener("touchstart", e => {
+    e.preventDefault();
+    holdStart(e);
+  }, { passive: false });
 
-    // اگر صفحه کلیک یا تاچ در خارج از slider بود و نگه داشته بودیم، هم release بشه
-    document.addEventListener('touchend', holdEnd);
-    document.addEventListener('touchcancel', holdEnd);
-  </script>
+  document.addEventListener("mouseup", holdEnd);
+  document.addEventListener("touchend", holdEnd);
+</script>
+
 </body>
 </html>
