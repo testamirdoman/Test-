@@ -353,6 +353,34 @@ function changeDir(d){
   if(d==="left"&&dir.x===0)dir={x:-10,y:0};
   if(d==="right"&&dir.x===0)dir={x:10,y:0};
 }
+  /* Keyboard Controls (Desktop) */
+document.addEventListener("keydown", e => {
+
+  // فقط وقتی بازی مار فعاله
+  if (snakeGame.style.display !== "block") return;
+
+  switch (e.key) {
+    case "ArrowUp":
+      e.preventDefault();
+      changeDir("up");
+      break;
+
+    case "ArrowDown":
+      e.preventDefault();
+      changeDir("down");
+      break;
+
+    case "ArrowLeft":
+      e.preventDefault();
+      changeDir("left");
+      break;
+
+    case "ArrowRight":
+      e.preventDefault();
+      changeDir("right");
+      break;
+  }
+});
 </script>
 
 </body>
