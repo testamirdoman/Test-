@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>AsusMall</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: opacity 0.3s ease-in-out;
+    }
+  </style>
+</head>
+
+<body>
+
+<img id="slider" src="images/A1.png" alt="AsusMall">
+
+<script>
+  const images = [
+    "images/A1.png",
+    "images/A2.png",
+    "images/A3.jpg",
+    "images/A4.jpg",
+    "images/A5.jpg"
+  ];
+
+  let index = 0;
+  let isChanging = false;
+  const slider = document.getElementById("slider");
+
+  function nextImage() {
+    if (isChanging) return; // جلوگیری از پرش
+    isChanging = true;
+
+    slider.style.opacity = 0;
+
+    setTimeout(() => {
+      index = (index + 1) % images.length;
+      slider.src = images[index];
+      slider.style.opacity = 1;
+
+      setTimeout(() => {
+        isChanging = false;
+      }, 300);
+    }, 150);
+  }
+
+  // ⏱ تایمر
+  setInterval(nextImage, 1000);
+
+  // 🖱 کلیک دسکتاپ
+  slider.addEventListener("click", nextImage);
+
+  // 📱 لمس موبایل (بدون دابل)
+  slider.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    nextImage();
+  }, { passive: false });
+</script>
+
+</body>
+</html>
