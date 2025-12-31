@@ -1,12 +1,77 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8">
-  <title>AsusMall</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>AsusMall</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    /* Snake Game */
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+/* Loader */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: black;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 10;
+}
+
+.progress-box {
+  width: 70%;
+  max-width: 300px;
+  height: 8px;
+  background: #333;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: white;
+  transition: width 0.3s ease;
+}
+
+/* Image */
+#slider {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Ripple */
+.ripple {
+  position: absolute;
+  border: 2px solid rgba(255,255,255,0.6);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple 0.8s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  from { width: 0; height: 0; opacity: 1; }
+  to { width: 200px; height: 200px; opacity: 0; }
+}
+
+/* ===== Snake Game ===== */
 #snakeGame {
   position: fixed;
   inset: 0;
@@ -17,7 +82,7 @@
 
 #snakeCanvas {
   display: block;
-  margin: auto;
+  margin: 80px auto 0;
   background: #000;
 }
 
@@ -29,93 +94,35 @@
   color: black;
   border: none;
   padding: 8px 14px;
-  font-size: 14px;
   border-radius: 6px;
-  cursor: pointer;
 }
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      overflow: hidden;
-      font-family: sans-serif;
-    }
 
-    /* Loader */
-    #loader {
-      position: fixed;
-      inset: 0;
-      background: black;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      z-index: 10;
-    }
+/* Controls */
+#snakeControls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: 60px 60px 60px;
+  grid-template-rows: 60px 60px;
+  gap: 10px;
+}
 
-    .progress-box {
-      width: 70%;
-      max-width: 300px;
-      height: 8px;
-      background: #333;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: white;
-      transition: width 0.3s ease;
-    }
-
-    /* Image */
-    #slider {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
-    }
-
-    /* Ripple */
-    .ripple {
-      position: absolute;
-      border: 5px solid rgba(255,255,255,0.6);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      animation: ripple 0.8s ease-out forwards;
-      pointer-events: none;
-    }
-
-    @keyframes ripple {
-      from {
-        width: 0;
-        height: 0;
-        opacity: 1;
-      }
-      to {
-        width: 250px;
-        height: 250px;
-        opacity: 0;
-      }
-    }
-  </style>
+.snake-btn {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: white;
+  font-size: 22px;
+  border-radius: 10px;
+}
+</style>
 </head>
 
 <body>
-<div id="snakeGame">
-  <button id="exitSnake">خروج</button>
-  <canvas id="snakeCanvas" width="300" height="300"></canvas>
-</div>
-  
+
 <div id="loader">
-  <span>...لطفاً منتظر بمانید</span>
+  <span>لطفاً منتظر بمانید...</span>
   <div class="progress-box">
     <div class="progress-bar" id="progress"></div>
   </div>
@@ -123,210 +130,188 @@
 
 <img id="slider" src="" alt="AsusMall">
 
+<!-- 🎮 Snake Game -->
+<div id="snakeGame">
+  <button id="exitSnake">خروج</button>
+  <canvas id="snakeCanvas" width="300" height="300"></canvas>
+
+  <div id="snakeControls">
+    <div></div>
+    <button class="snake-btn" data-dir="up">▲</button>
+    <div></div>
+    <button class="snake-btn" data-dir="left">◀</button>
+    <button class="snake-btn" data-dir="down">▼</button>
+    <button class="snake-btn" data-dir="right">▶</button>
+  </div>
+</div>
+
 <script>
-  const images = [
-    "images/A1.webp",
-    "images/A2.webp",
-    "images/A3.webp",
-    "images/A4.webp",
-    "images/A5.webp"
-  ];
+/* ===== Slider ===== */
+const images = [
+  "images/A1.webp",
+  "images/A2.webp",
+  "images/A3.webp",
+  "images/A4.webp",
+  "images/A5.webp"
+];
 
-  const slider = document.getElementById("slider");
-  const loader = document.getElementById("loader");
-  const progressBar = document.getElementById("progress");
+const slider = document.getElementById("slider");
+const loader = document.getElementById("loader");
+const progressBar = document.getElementById("progress");
 
-  let loaded = 0;
-  let index = 0;
-  let isChanging = false;
-  let isHolding = false;
-  let interval;
+let loaded = 0, index = 0;
+let isChanging = false, isHolding = false;
+let interval;
 
-  // Preload
-  images.forEach(src => {
-    const img = new Image();
-    img.onload = () => {
-      loaded++;
-      progressBar.style.width = (loaded / images.length) * 100 + "%";
-
-      if (loaded === images.length) {
-        setTimeout(() => {
-          loader.style.display = "none";
-          slider.src = images[0];
-          slider.style.opacity = 1;
-          startSlider();
-        }, 400);
-      }
-    };
-    img.src = src;
-  });
-
-  function nextImage() {
-    if (isChanging || isHolding) return;
-    isChanging = true;
-
-    slider.style.opacity = 0;
-    setTimeout(() => {
-      index = (index + 1) % images.length;
-      slider.src = images[index];
-      slider.style.opacity = 1;
-      setTimeout(() => isChanging = false, 500);
-    }, 300);
-  }
-
-  function startSlider() {
-    interval = setInterval(nextImage, 2000);
-  }
-
-  function stopSlider() {
-    clearInterval(interval);
-  }
-
-  // Ripple effect
-  function createRipple(x, y) {
-    for (let i = 0; i < 3; i++) {
+/* preload */
+images.forEach(src => {
+  const img = new Image();
+  img.onload = () => {
+    loaded++;
+    progressBar.style.width = (loaded / images.length) * 100 + "%";
+    if (loaded === images.length) {
       setTimeout(() => {
-        const ripple = document.createElement("div");
-        ripple.className = "ripple";
-        ripple.style.left = x + "px";
-        ripple.style.top = y + "px";
-        document.body.appendChild(ripple);
-
-        ripple.addEventListener("animationend", () => {
-          ripple.remove();
-        });
-      }, i * 150);
+        loader.style.display = "none";
+        slider.src = images[0];
+        slider.style.opacity = 1;
+        startSlider();
+      }, 400);
     }
+  };
+  img.src = src;
+});
+
+function nextImage() {
+  if (isChanging || isHolding) return;
+  isChanging = true;
+  slider.style.opacity = 0;
+  setTimeout(() => {
+    index = (index + 1) % images.length;
+    slider.src = images[index];
+    slider.style.opacity = 1;
+    setTimeout(() => isChanging = false, 500);
+  }, 300);
+}
+
+function startSlider() {
+  clearInterval(interval);
+  interval = setInterval(nextImage, 2000);
+}
+function stopSlider() {
+  clearInterval(interval);
+}
+
+/* Ripple + Hold */
+function createRipple(x, y) {
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+      const r = document.createElement("div");
+      r.className = "ripple";
+      r.style.left = x + "px";
+      r.style.top = y + "px";
+      document.body.appendChild(r);
+      r.onanimationend = () => r.remove();
+    }, i * 150);
   }
+}
 
-  // Hold start
-  function holdStart(e) {
-    isHolding = true;
-    stopSlider();
+function holdStart(e) {
+  isHolding = true;
+  stopSlider();
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+  createRipple(x, y);
+}
 
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
+function holdEnd() {
+  isHolding = false;
+  startSlider();
+}
 
-    createRipple(x, y);
+slider.addEventListener("mousedown", holdStart);
+slider.addEventListener("touchstart", e => {
+  e.preventDefault();
+  holdStart(e);
+},{passive:false});
+document.addEventListener("mouseup", holdEnd);
+document.addEventListener("touchend", holdEnd);
+
+/* ===== 3 Tap to Snake ===== */
+let tapCount = 0, tapTimer;
+function registerTap(){
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(()=>tapCount=0,600);
+  if(tapCount===3){
+    tapCount=0;
+    openSnake();
   }
+}
+document.addEventListener("click", registerTap);
+document.addEventListener("touchstart", registerTap);
 
-  // Hold end
-  function holdEnd() {
-    isHolding = false;
-    startSlider();
+/* ===== Snake Game ===== */
+const snakeGame = document.getElementById("snakeGame");
+const canvas = document.getElementById("snakeCanvas");
+const ctx = canvas.getContext("2d");
+const exitBtn = document.getElementById("exitSnake");
+
+let snake, food, dir, snakeInterval;
+
+function openSnake(){
+  stopSlider();
+  clearInterval(snakeInterval);
+  snakeGame.style.display="block";
+  startSnake();
+}
+function closeSnake(){
+  snakeGame.style.display="none";
+  clearInterval(snakeInterval);
+  startSlider();
+}
+exitBtn.onclick = closeSnake;
+
+function startSnake(){
+  snake=[{x:150,y:150}];
+  dir={x:10,y:0};
+  food=randomFood();
+  snakeInterval=setInterval(gameLoop,110);
+}
+function randomFood(){
+  return {
+    x:Math.floor(Math.random()*30)*10,
+    y:Math.floor(Math.random()*30)*10
+  };
+}
+function gameLoop(){
+  ctx.clearRect(0,0,300,300);
+  const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  if(head.x<0||head.y<0||head.x>=300||head.y>=300||
+     snake.some(s=>s.x===head.x&&s.y===head.y)){
+    startSnake();return;
   }
+  snake.unshift(head);
+  if(head.x===food.x&&head.y===food.y) food=randomFood();
+  else snake.pop();
+  ctx.fillStyle="white";
+  snake.forEach(s=>ctx.fillRect(s.x,s.y,10,10));
+  ctx.fillRect(food.x,food.y,10,10);
+}
 
-  slider.addEventListener("mousedown", holdStart);
-  slider.addEventListener("touchstart", e => {
+/* Touch Controls */
+document.querySelectorAll(".snake-btn").forEach(btn=>{
+  btn.addEventListener("touchstart",e=>{
     e.preventDefault();
-    holdStart(e);
-  }, { passive: false });
-
-  document.addEventListener("mouseup", holdEnd);
-  document.addEventListener("touchend", holdEnd);
+    changeDir(btn.dataset.dir);
+  });
+});
+function changeDir(d){
+  if(d==="up"&&dir.y===0)dir={x:0,y:-10};
+  if(d==="down"&&dir.y===0)dir={x:0,y:10};
+  if(d==="left"&&dir.x===0)dir={x:-10,y:0};
+  if(d==="right"&&dir.x===0)dir={x:10,y:0};
+}
 </script>
 
 </body>
 </html>
-<script>
-  /* =====================
-     4-TAP DETECTION
-  ===================== */
-  let tapCount = 0;
-  let tapTimer;
-
-  function registerTap() {
-    tapCount++;
-    clearTimeout(tapTimer);
-
-    tapTimer = setTimeout(() => {
-      tapCount = 0;
-    }, 600);
-
-    if (tapCount === 4) {
-      tapCount = 0;
-      openSnake();
-    }
-  }
-
-  document.addEventListener("click", registerTap);
-  document.addEventListener("touchstart", registerTap);
-
-  /* =====================
-     SNAKE GAME
-  ===================== */
-  const snakeGame = document.getElementById("snakeGame");
-  const canvas = document.getElementById("snakeCanvas");
-  const ctx = canvas.getContext("2d");
-  const exitBtn = document.getElementById("exitSnake");
-
-  let snake, food, dir, snakeInterval;
-
-  function openSnake() {
-    stopSlider();
-    snakeGame.style.display = "block";
-    startSnake();
-  }
-
-  function closeSnake() {
-    snakeGame.style.display = "none";
-    clearInterval(snakeInterval);
-    startSlider();
-  }
-
-  exitBtn.onclick = closeSnake;
-
-  function startSnake() {
-    snake = [{ x: 150, y: 150 }];
-    dir = { x: 10, y: 0 };
-    food = randomFood();
-
-    snakeInterval = setInterval(gameLoop, 100);
-  }
-
-  function randomFood() {
-    return {
-      x: Math.floor(Math.random() * 30) * 10,
-      y: Math.floor(Math.random() * 30) * 10
-    };
-  }
-
-  function gameLoop() {
-    ctx.clearRect(0, 0, 300, 300);
-
-    const head = {
-      x: snake[0].x + dir.x,
-      y: snake[0].y + dir.y
-    };
-
-    if (
-      head.x < 0 || head.y < 0 ||
-      head.x >= 300 || head.y >= 300 ||
-      snake.some(s => s.x === head.x && s.y === head.y)
-    ) {
-      startSnake();
-      return;
-    }
-
-    snake.unshift(head);
-
-    if (head.x === food.x && head.y === food.y) {
-      food = randomFood();
-    } else {
-      snake.pop();
-    }
-
-    ctx.fillStyle = "white";
-    snake.forEach(s => ctx.fillRect(s.x, s.y, 10, 10));
-
-    ctx.fillRect(food.x, food.y, 10, 10);
-  }
-
-  /* Controls */
-  document.addEventListener("keydown", e => {
-    if (e.key === "ArrowUp" && dir.y === 0) dir = { x: 0, y: -10 };
-    if (e.key === "ArrowDown" && dir.y === 0) dir = { x: 0, y: 10 };
-    if (e.key === "ArrowLeft" && dir.x === 0) dir = { x: -10, y: 0 };
-    if (e.key === "ArrowRight" && dir.x === 0) dir = { x: 10, y: 0 };
-  });
-</script>
