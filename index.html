@@ -239,15 +239,18 @@ document.addEventListener("touchend", holdEnd);
 
 /* ===== 3 Tap to Snake ===== */
 let tapCount = 0, tapTimer;
-function registerTap(){
+function registerTap(e){
+  if (snakeGame.style.display === "block") return; // ⛔ داخل بازی مار
+
   tapCount++;
   clearTimeout(tapTimer);
   tapTimer = setTimeout(()=>tapCount=0,600);
+
   if(tapCount===3){
     tapCount=0;
     openSnake();
   }
-}
+        }
 document.addEventListener("click", registerTap);
 document.addEventListener("touchstart", registerTap);
 
