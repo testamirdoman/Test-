@@ -272,10 +272,13 @@ function closeSnake(){
 exitBtn.onclick = closeSnake;
 
 function startSnake(){
-  snake=[{x:150,y:150}];
-  dir={x:10,y:0};
-  food=randomFood();
-  snakeInterval=setInterval(gameLoop,110);
+  clearInterval(snakeInterval); // 🔥 مهم‌ترین خط
+
+  snake = [{ x: 150, y: 150 }];
+  dir = { x: 10, y: 0 };
+  food = randomFood();
+
+  snakeInterval = setInterval(gameLoop, 150); // سرعت ثابت
 }
 function randomFood(){
   return {
